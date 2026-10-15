@@ -1,4 +1,4 @@
-# 🛍️ NexusStore Pro - ProductManagement TP4 / TP5
+# 🛍️ NexusStore Pro - ProductManagement 
 
 Application web e-commerce moderne développée avec **ASP.NET Core MVC 9**, **Entity Framework Core**, **SQL Server** et **ASP.NET Core Identity**.
 
