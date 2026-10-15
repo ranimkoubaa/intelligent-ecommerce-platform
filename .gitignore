@@ -24,7 +24,10 @@
 
 # Environment and secrets
 appsettings.*.local.json
+appsettings.Production.json
 secrets.json
+.env
+*.env
 
 # Node & Frontend dependencies if any
 node_modules/
