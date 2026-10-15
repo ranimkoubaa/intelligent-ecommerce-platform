@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # 🛍️ Intelligent E-Commerce Platform (NexusStore Pro)
+=======
+# 🛍️ NexusStore Pro - ProductManagement 
+>>>>>>> c18ef31d158c126ba14fe141dc6ea887e88c93cc
 
 [![.NET 9](https://img.shields.io/badge/.NET-9.0-purple?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-13.0-blue?style=for-the-badge&logo=csharp)](https://docs.microsoft.com/en-us/dotnet/csharp/)
