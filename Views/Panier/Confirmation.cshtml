@@ -1,0 +1,106 @@
+@model ProductManagement.Models.Order
+@{
+    ViewData["Title"] = "Confirmation de Commande";
+}
+
+<div class="container py-4">
+    <div class="text-center mb-4 d-print-none">
+        <div class="display-3 text-success mb-2">🎉</div>
+        <h1 class="h2 fw-bold text-success">Votre commande a été validée avec succès !</h1>
+        <p class="lead text-muted">Merci pour votre confiance, @Model.CustomerName. Un e-mail de confirmation vous a été envoyé.</p>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 invoice-card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="mb-0 fw-bold">FACTURE OFFICIELLE</h3>
+                <small class="text-white-50">ProductManagement E-Commerce</small>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-light text-dark fs-6">N° #@Model.Id</span>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <h6 class="text-muted text-uppercase mb-1">Informations Client</h6>
+                    <p class="mb-0 fw-bold">@Model.CustomerName</p>
+                    <p class="mb-0 text-muted">@Model.Email</p>
+                    <p class="mb-0 text-muted">Adresse : @Model.Address</p>
+                </div>
+                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    <h6 class="text-muted text-uppercase mb-1">Détails de Commande</h6>
+                    <p class="mb-0"><span class="text-muted">Date :</span> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p class="mb-0"><span class="text-muted">Statut :</span> <span class="badge bg-success">Payée</span></p>
+                </div>
+            </div>
+
+            <h6 class="text-muted text-uppercase mb-2">Articles Commandés</h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Article</th>
+                            <th class="text-center">Quantité</th>
+                            <th class="text-end">Prix Unitaire</th>
+                            <th class="text-end">Sous-total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@item.ProductName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">@item.Price.ToString("N2") DT</td>
+                                    <td class="text-end fw-bold">@((item.Price * item.Quantity).ToString("N2")) DT</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold fs-5">Total Payé :</td>
+                            <td class="text-end fw-bold fs-5 text-primary">@Model.TotalAmount.ToString("N2") DT</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center d-print-none">
+            <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary">
+                ← Continuer mes achats
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                🖨️ Imprimer la Facture
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        .invoice-card, .invoice-card * {
+            visibility: visible;
+        }
+        .invoice-card {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+        .d-print-none {
+            display: none !important;
+        }
+    }
+</style>

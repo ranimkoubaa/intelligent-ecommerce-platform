@@ -1,0 +1,53 @@
+@model ProductManagement.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Inscription";
+}
+
+<div class="row justify-content-center my-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="navbar-brand-badge mx-auto mb-2" style="width: 48px; height: 48px; font-size: 1.5rem; background: var(--success-gradient);">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark">Créer un compte</h2>
+                    <p class="text-muted small">Rejoignez NexusStore pour gérer vos commandes</p>
+                </div>
+
+                <form method="post">
+                    <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" class="form-control" placeholder="nom@exemple.com" />
+                        <label asp-for="Email">Adresse Email</label>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Mot de passe" />
+                        <label asp-for="Password">Mot de passe</label>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirmer le mot de passe" />
+                        <label asp-for="ConfirmPassword">Confirmer le mot de passe</label>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fs-6 shadow">
+                        <i class="bi bi-check2-circle"></i> S'inscrire
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <p class="text-muted small mb-0">
+                        Vous possédez déjà un compte ? 
+                        <a asp-action="Login" class="text-primary fw-semibold text-decoration-none">Connectez-vous</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

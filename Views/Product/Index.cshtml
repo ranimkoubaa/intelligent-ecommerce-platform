@@ -1,0 +1,136 @@
+@model IEnumerable<ProductManagement.Models.Product>
+
+@{
+    ViewData["Title"] = "Catalogue des produits";
+    string currentSort = ViewBag.SortBy as string ?? "";
+    int? currentCat = ViewBag.CategoryId as int?;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h2 mb-1">📦 Catalogue des produits</h1>
+        @if (currentCat.HasValue && ViewData["Categories"] != null)
+        {
+            var activeCat = ((IEnumerable<ProductManagement.Models.Category>)ViewData["Categories"]).FirstOrDefault(c => c.CategoryId == currentCat.Value);
+            if (activeCat != null)
+            {
+                <span class="badge bg-primary">Filtré par : @activeCat.CategoryName</span>
+                <a asp-action="Index" class="btn btn-link btn-sm text-decoration-none">✕ Effacer le filtre</a>
+            }
+        }
+    </div>
+
+    <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+        <!-- Sélecteur de tri -->
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-1">
+            @if (currentCat.HasValue)
+            {
+                <input type="hidden" name="categoryId" value="@currentCat.Value" />
+            }
+            <label class="text-nowrap small text-muted me-1">Trier par :</label>
+            <select name="sortBy" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="" selected="@(string.IsNullOrEmpty(currentSort))">Par défaut</option>
+                <option value="price_asc" selected="@(currentSort == "price_asc")">Prix croissant</option>
+                <option value="price_desc" selected="@(currentSort == "price_desc")">Prix décroissant</option>
+                <option value="name" selected="@(currentSort == "name")">Nom (A-Z)</option>
+                <option value="newest" selected="@(currentSort == "newest")">Plus récents</option>
+            </select>
+        </form>
+
+        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+        {
+            <a asp-action="Create" class="btn btn-primary btn-sm text-nowrap">
+                + Ajouter un produit
+            </a>
+        }
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h4 class="text-muted">Aucun produit trouvé dans cette sélection.</h4>
+        <a asp-action="Index" class="btn btn-outline-primary mt-2">Voir tous les produits</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var product in Model)
+        {
+            var photoPath = "~/images/" + (product.Image ?? "noimage.jpg");
+
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 position-relative">
+                    <!-- Image -->
+                    <div class="text-center bg-light p-3" style="height: 220px;">
+                        <img src="@photoPath"
+                             asp-append-version="true"
+                             alt="@product.Name"
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-secondary">@(product.Category?.CategoryName ?? "Non classé")</span>
+                            @if (product.QteStock > 5)
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success">En stock</span>
+                            }
+                            else if (product.QteStock > 0)
+                            {
+                                <span class="badge bg-warning-subtle text-dark border border-warning">Plus que @product.QteStock</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-subtle text-danger border border-danger">Rupture</span>
+                            }
+                        </div>
+
+                        <h5 class="card-title text-truncate fw-bold mb-1" title="@product.Name">@product.Name</h5>
+                        <p class="fs-5 fw-bold text-primary mb-3">@product.Price DT</p>
+
+                        <!-- Actions -->
+                        <div class="mt-auto d-flex gap-2">
+                            <a asp-controller="Product"
+                               asp-action="Details"
+                               asp-route-id="@product.ProductId"
+                               class="btn btn-outline-primary w-50">
+                                Détails
+                            </a>
+
+                            <a asp-controller="Panier"
+                               asp-action="AddProduct"
+                               asp-route-id="@product.ProductId"
+                               class="btn btn-success w-50 @(product.QteStock <= 0 ? "disabled" : "")">
+                                🛒 Panier
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-5" aria-label="Pagination des produits">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-categoryId="@ViewBag.CategoryId"
+                           asp-route-sortBy="@ViewBag.SortBy"
+                           asp-route-page="@i">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}

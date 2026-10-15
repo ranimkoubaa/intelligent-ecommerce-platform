@@ -1,0 +1,53 @@
+@model IEnumerable<ProductManagement.Models.Product>
+
+@if (Model != null && Model.Any())
+{
+    <div class="card mt-5 shadow-sm border-0 bg-light">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center">
+                    <span class="fs-3 me-2">✨</span>
+                    <div>
+                        <h4 class="mb-0 fw-bold text-dark">Complétez vos achats — Recommandé pour vous</h4>
+                        <small class="text-muted">Suggestions basées sur vos articles et les meilleures ventes</small>
+                    </div>
+                </div>
+                <span class="badge bg-primary px-3 py-2">Recommandations IA</span>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3 mt-1">
+                @foreach (var prod in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100 bg-white shadow-sm border-0">
+                            <div class="text-center p-2" style="height: 140px;">
+                                <img src="~/images/@(prod.Image ?? "noimage.jpg")"
+                                     class="img-fluid"
+                                     style="max-height: 100%; object-fit: contain;"
+                                     alt="@prod.Name" />
+                            </div>
+                            <div class="card-body p-3 d-flex flex-column">
+                                <span class="badge bg-secondary-subtle text-secondary small mb-1 align-self-start">
+                                    @(prod.Category?.CategoryName ?? "Produit")
+                                </span>
+                                <h6 class="card-title text-truncate fw-semibold mb-1" title="@prod.Name">@prod.Name</h6>
+                                <p class="text-primary fw-bold mb-3">@prod.Price DT</p>
+
+                                <div class="mt-auto d-flex gap-1">
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@prod.ProductId"
+                                       class="btn btn-outline-secondary btn-sm flex-fill">
+                                        Voir
+                                    </a>
+                                    <a asp-controller="Panier" asp-action="AddProduct" asp-route-id="@prod.ProductId"
+                                       class="btn btn-primary btn-sm flex-fill">
+                                        + Ajouter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

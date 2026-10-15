@@ -1,0 +1,580 @@
+@model ProductManagement.ViewModels.ChatbotAnalyticsViewModel
+@{
+    ViewData["Title"] = "NexusBot Analytics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="analytics-page">
+    <!-- Header -->
+    <div class="analytics-header">
+        <div class="analytics-header-inner">
+            <div class="analytics-title-group">
+                <div class="analytics-icon-wrap">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div>
+                    <h1 class="analytics-title">NexusBot Analytics</h1>
+                    <p class="analytics-subtitle">Tableau de bord des conversations en temps réel</p>
+                </div>
+            </div>
+            <div class="analytics-header-actions">
+                <a href="@Url.Action("History", "Chatbot")" class="btn-analytics-secondary">
+                    <i class="bi bi-clock-history"></i> Historique complet
+                </a>
+                <a href="@Url.Action("Index", "Chatbot")" class="btn-analytics-primary">
+                    <i class="bi bi-chat-dots"></i> Ouvrir le chatbot
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-body">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-blue">
+                <div class="kpi-icon"><i class="bi bi-chat-square-text"></i></div>
+                <div class="kpi-value">@Model.TotalConversations</div>
+                <div class="kpi-label">Total conversations</div>
+                <div class="kpi-sub">depuis le début</div>
+            </div>
+            <div class="kpi-card kpi-violet">
+                <div class="kpi-icon"><i class="bi bi-people"></i></div>
+                <div class="kpi-value">@Model.TotalSessions</div>
+                <div class="kpi-label">Sessions uniques</div>
+                <div class="kpi-sub">visiteurs distincts</div>
+            </div>
+            <div class="kpi-card kpi-teal">
+                <div class="kpi-icon"><i class="bi bi-calendar-day"></i></div>
+                <div class="kpi-value">@Model.TodayConversations</div>
+                <div class="kpi-label">Aujourd'hui</div>
+                <div class="kpi-sub">conversations du jour</div>
+            </div>
+            <div class="kpi-card kpi-orange">
+                <div class="kpi-icon"><i class="bi bi-image"></i></div>
+                <div class="kpi-value">@Model.ImageSearches</div>
+                <div class="kpi-label">Recherches visuelles</div>
+                <div class="kpi-sub">photos analysées</div>
+            </div>
+        </div>
+
+        <!-- Middle Row: Intents + Top Products -->
+        <div class="analytics-mid-row">
+            <!-- Top Intents -->
+            <div class="analytics-card intents-card">
+                <div class="card-header-analytics">
+                    <i class="bi bi-pie-chart"></i>
+                    <span>Intentions détectées</span>
+                </div>
+                <div class="card-body-analytics">
+                    @if (!Model.TopIntents.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p>Aucune conversation enregistrée pour l'instant.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        int maxCount = Model.TopIntents.Max(i => i.Count);
+                        foreach (var intent in Model.TopIntents)
+                        {
+                            int pct = maxCount > 0 ? (int)((double)intent.Count / maxCount * 100) : 0;
+                            <div class="intent-row">
+                                <div class="intent-label">
+                                    <i class="bi @intent.Icon"></i>
+                                    <span>@intent.Intent</span>
+                                </div>
+                                <div class="intent-bar-wrap">
+                                    <div class="intent-bar" style="width:@pct%"></div>
+                                </div>
+                                <div class="intent-count">@intent.Count</div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="analytics-card products-card">
+                <div class="card-header-analytics">
+                    <i class="bi bi-trophy"></i>
+                    <span>Produits les plus demandés</span>
+                </div>
+                <div class="card-body-analytics">
+                    @if (!Model.TopProducts.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="bi bi-box-seam"></i>
+                            <p>Aucun produit associé aux conversations.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        int rank = 1;
+                        foreach (var prod in Model.TopProducts)
+                        {
+                            <div class="top-product-row">
+                                <div class="rank-badge rank-@rank">@rank</div>
+                                @if (!string.IsNullOrEmpty(prod.ProductImage))
+                                {
+                                    <img src="~/images/@prod.ProductImage"
+                                         class="top-product-img"
+                                         alt="@prod.ProductName"
+                                         onerror="this.style.display='none'" />
+                                }
+                                else
+                                {
+                                    <div class="top-product-img-placeholder"><i class="bi bi-box-seam"></i></div>
+                                }
+                                <div class="top-product-info">
+                                    <div class="top-product-name">@prod.ProductName</div>
+                                    <div class="top-product-mentions">@prod.Mentions mention(s)</div>
+                                </div>
+                            </div>
+                            rank++;
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Conversations -->
+        <div class="analytics-card full-card recent-card">
+            <div class="card-header-analytics">
+                <i class="bi bi-lightning"></i>
+                <span>Dernières conversations</span>
+                <a href="@Url.Action("History", "Chatbot")" class="view-all-link">Voir tout →</a>
+            </div>
+            <div class="card-body-analytics">
+                @if (!Model.RecentMessages.Any())
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-chat-square-dots"></i>
+                        <p>Aucune conversation récente.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="recent-table-wrap">
+                        <table class="recent-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Session</th>
+                                    <th>Message utilisateur</th>
+                                    <th>Intention</th>
+                                    <th>Réponse du bot</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var msg in Model.RecentMessages)
+                                {
+                                    <tr>
+                                        <td class="time-cell">
+                                            <span class="time-badge">@msg.CreatedAt.ToString("HH:mm")</span>
+                                            <span class="date-sub">@msg.CreatedAt.ToString("dd/MM")</span>
+                                        </td>
+                                        <td class="session-cell">
+                                            <span class="session-chip">@(msg.SessionId?.Substring(0, 8) ?? "—")</span>
+                                        </td>
+                                        <td class="msg-cell user-msg">@msg.UserMessage</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(msg.DetectedIntent))
+                                            {
+                                                <span class="intent-tag">@msg.DetectedIntent</span>
+                                            }
+                                        </td>
+                                        <td class="msg-cell bot-reply">@(msg.BotResponse.Length > 120 ? msg.BotResponse.Substring(0, 120) + "…" : msg.BotResponse)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .analytics-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        padding: 2rem 1.5rem 3rem;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    .analytics-header {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .analytics-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .analytics-title-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .analytics-icon-wrap {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #a78bfa, #7c3aed);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    }
+
+    .analytics-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+        background: linear-gradient(90deg, #a78bfa, #38bdf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .analytics-subtitle {
+        color: rgba(255,255,255,0.55);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .analytics-header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    .btn-analytics-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: linear-gradient(135deg, #7c3aed, #a855f7);
+        color: #fff;
+        padding: 0.55rem 1.2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all .2s;
+        box-shadow: 0 3px 12px rgba(124,58,237,0.35);
+    }
+
+    .btn-analytics-primary:hover { transform: translateY(-2px); color: #fff; box-shadow: 0 6px 20px rgba(124,58,237,0.5); }
+
+    .btn-analytics-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.8);
+        padding: 0.55rem 1.2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1px solid rgba(255,255,255,0.15);
+        transition: all .2s;
+    }
+
+    .btn-analytics-secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    /* ── KPI Grid ────────────────────────────────────── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+        background: rgba(255,255,255,0.07);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        padding: 1.5rem 1.75rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0;
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        opacity: 0.15;
+        transform: translate(20px, -20px);
+    }
+
+    .kpi-blue::before   { background: #60a5fa; }
+    .kpi-violet::before { background: #a78bfa; }
+    .kpi-teal::before   { background: #2dd4bf; }
+    .kpi-orange::before { background: #fb923c; }
+
+    .kpi-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .kpi-blue   .kpi-icon { color: #60a5fa; }
+    .kpi-violet .kpi-icon { color: #a78bfa; }
+    .kpi-teal   .kpi-icon { color: #2dd4bf; }
+    .kpi-orange .kpi-icon { color: #fb923c; }
+
+    .kpi-value {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .kpi-label {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.85);
+        margin-top: 0.35rem;
+    }
+
+    .kpi-sub {
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.45);
+        margin-top: 0.2rem;
+    }
+
+    /* ── Middle Row ──────────────────────────────────── */
+    .analytics-mid-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .analytics-mid-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Cards ───────────────────────────────────────── */
+    .analytics-card {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .full-card { margin-bottom: 1.5rem; }
+
+    .card-header-analytics {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 1rem 1.5rem;
+        background: rgba(255,255,255,0.04);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.9);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .card-header-analytics i { color: #a78bfa; font-size: 1.1rem; }
+
+    .view-all-link {
+        margin-left: auto;
+        font-size: 0.82rem;
+        color: #a78bfa;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .view-all-link:hover { color: #c4b5fd; }
+
+    .card-body-analytics { padding: 1.25rem 1.5rem; }
+
+    /* ── Intent Bars ─────────────────────────────────── */
+    .intent-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .intent-label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        width: 170px;
+        flex-shrink: 0;
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .intent-label i { color: #a78bfa; }
+
+    .intent-bar-wrap {
+        flex: 1;
+        height: 8px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .intent-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #7c3aed, #38bdf8);
+        border-radius: 99px;
+        transition: width .6s ease;
+    }
+
+    .intent-count {
+        font-size: 0.82rem;
+        color: #a78bfa;
+        font-weight: 700;
+        width: 32px;
+        text-align: right;
+    }
+
+    /* ── Top Products ────────────────────────────────── */
+    .top-product-row {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .top-product-row:last-child { border-bottom: none; }
+
+    .rank-badge {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .rank-1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1a1a1a; }
+    .rank-2 { background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: #1a1a1a; }
+    .rank-3 { background: linear-gradient(135deg, #d97706, #f59e0b); color: #1a1a1a; }
+    .rank-4, .rank-5 { background: rgba(167,139,250,0.2); color: #a78bfa; }
+
+    .top-product-img {
+        width: 42px; height: 42px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .top-product-img-placeholder {
+        width: 42px; height: 42px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.3);
+        font-size: 1.1rem;
+    }
+
+    .top-product-name {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.85);
+    }
+
+    .top-product-mentions {
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.45);
+    }
+
+    /* ── Recent Table ────────────────────────────────── */
+    .recent-table-wrap { overflow-x: auto; }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .recent-table thead th {
+        padding: 0.6rem 0.9rem;
+        text-align: left;
+        color: rgba(255,255,255,0.5);
+        font-weight: 500;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+    }
+
+    .recent-table tbody tr {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        transition: background .15s;
+    }
+
+    .recent-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+
+    .recent-table td { padding: 0.65rem 0.9rem; vertical-align: middle; }
+
+    .time-badge {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #a78bfa;
+    }
+
+    .date-sub {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.35);
+    }
+
+    .session-chip {
+        background: rgba(167,139,250,0.15);
+        color: #c4b5fd;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-family: monospace;
+    }
+
+    .msg-cell { max-width: 240px; color: rgba(255,255,255,0.8); }
+    .user-msg { color: #93c5fd; }
+    .bot-reply { color: rgba(255,255,255,0.6); font-size: 0.82rem; }
+
+    .intent-tag {
+        background: rgba(56,189,248,0.12);
+        color: #38bdf8;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+    }
+
+    /* ── Empty State ─────────────────────────────────── */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: rgba(255,255,255,0.3);
+    }
+
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+    .empty-state p { margin: 0; font-size: 0.9rem; }
+</style>

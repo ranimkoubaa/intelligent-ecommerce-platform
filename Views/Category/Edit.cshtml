@@ -1,0 +1,26 @@
+﻿@model ProductManagement.Models.Category
+
+<h1>Modifier une catégorie</h1>
+
+<form asp-action="Edit" method="post">
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <input type="hidden" asp-for="CategoryId" />
+
+    <div class="form-group mb-3">
+        <label asp-for="CategoryName"></label>
+        <input asp-for="CategoryName" class="form-control" />
+        <span asp-validation-for="CategoryName"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-warning">
+        Modifier
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Retour
+    </a>
+
+</form>

@@ -1,0 +1,119 @@
+<!-- Floating Chatbot Widget Launcher & Panel -->
+<div id="nexusChatbotContainer">
+    <!-- Floating Launcher Button -->
+    <button id="chatbotLauncher" class="chatbot-launcher-btn shadow-lg" type="button" aria-label="Ouvrir l'assistant IA">
+        <span class="chatbot-launcher-avatar">
+            <i class="bi bi-robot"></i>
+        </span>
+        <span class="chatbot-launcher-pulse"></span>
+        <span class="chatbot-launcher-text d-none d-md-inline-block">
+            <strong>NexusBot</strong> <small class="d-block text-white-50">Stock & IA</small>
+        </span>
+        <span class="chatbot-badge-unread d-none" id="chatbotUnreadBadge">1</span>
+    </button>
+
+    <!-- Floating Chat Window -->
+    <div id="chatbotWindow" class="chatbot-window shadow-2xl d-none">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="chatbot-header-avatar">
+                    <i class="bi bi-robot fs-5"></i>
+                    <span class="chatbot-status-dot" title="Assistant en ligne"></span>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-1">
+                        NexusBot AI
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0 text-xs">En ligne</span>
+                    </h6>
+                    <small class="text-white-50 chatbot-subtitle">Assistant Stock & Reconnaissance Visuelle</small>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+                <a href="/Chatbot/Analytics" class="btn btn-sm btn-icon-glass" title="Statistiques & Analytics">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-icon-glass" id="chatbotClearBtn" title="Effacer et recommencer">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+                <a href="/Chatbot" class="btn btn-sm btn-icon-glass" title="Ouvrir en plein écran">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-icon-glass" id="chatbotCloseBtn" title="Fermer le chat">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Notification Banner / Drop overlay -->
+        <div id="chatbotDropOverlay" class="chatbot-drop-overlay d-none">
+            <div class="drop-content">
+                <i class="bi bi-cloud-arrow-up-fill fs-1 text-primary"></i>
+                <p class="fw-bold mb-0">Déposez l'image de votre produit ici</p>
+                <small class="text-muted">Reconnaissance visuelle automatique</small>
+            </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chatbot-body" id="chatbotMessages">
+            <!-- Messages inserted dynamically via JS -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="chatbot-typing d-none" id="chatbotTyping">
+            <div class="typing-bubble">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            </div>
+            <small class="text-muted ms-2 fst-italic">NexusBot analyse la requête & le stock...</small>
+        </div>
+
+        <!-- Image Preview Bar (When user picked an image) -->
+        <div class="chatbot-image-preview-bar d-none" id="chatbotPreviewBar">
+            <div class="preview-item">
+                <img id="chatbotImgPreview" src="" alt="Aperçu photo produit" />
+                <div class="preview-info">
+                    <span class="preview-name text-truncate" id="chatbotPreviewName">photo.jpg</span>
+                    <span class="preview-size text-muted" id="chatbotPreviewFile">Photo prête à l'analyse</span>
+                </div>
+                <button type="button" class="btn-close btn-sm ms-auto" id="chatbotRemoveImgBtn" title="Supprimer l'image"></button>
+            </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="chatbot-footer">
+            <form id="chatbotForm" class="d-flex align-items-center gap-2">
+                <!-- Hidden File Input for Image upload -->
+                <input type="file" id="chatbotFileInput" name="image" accept="image/png, image/jpeg, image/jpg, image/webp" class="d-none" />
+
+                <!-- Photo attach button -->
+                <button type="button" class="btn btn-chatbot-attach" id="chatbotAttachBtn" title="Envoyer une photo de produit pour identification">
+                    <i class="bi bi-camera-fill"></i>
+                </button>
+
+                <!-- Textarea / Input -->
+                <div class="chatbot-input-wrapper flex-grow-1">
+                    <input type="text"
+                           id="chatbotInputText"
+                           class="form-control chatbot-input"
+                           placeholder="Demandez le stock d'un produit, un prix ou envoyez une photo..."
+                           autocomplete="off" />
+                </div>
+
+                <!-- Send button -->
+                <button type="submit" class="btn btn-chatbot-send" id="chatbotSendBtn" title="Envoyer">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+            <div class="chatbot-footer-hint d-flex justify-content-between align-items-center px-1 pt-1">
+                <small class="text-muted text-xs">
+                    <i class="bi bi-shield-check text-success"></i> Stock synchronisé en temps réel
+                </small>
+                <small class="text-muted text-xs">
+                    <i class="bi bi-camera"></i> Glissez une image directement
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

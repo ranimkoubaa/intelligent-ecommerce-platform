@@ -1,0 +1,395 @@
+@model ProductManagement.ViewModels.ChatbotHistoryViewModel
+@{
+    ViewData["Title"] = "Historique – NexusBot";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="history-page">
+    <!-- Header -->
+    <div class="history-header">
+        <div class="history-header-inner">
+            <div class="history-title-group">
+                <div class="history-icon-wrap">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <h1 class="history-title">Historique des conversations</h1>
+                    <p class="history-subtitle">
+                        @Model.TotalCount conversation(s) enregistrée(s) — page @Model.Page / @Model.TotalPages
+                    </p>
+                </div>
+            </div>
+            <div class="history-header-actions">
+                <a href="@Url.Action("Analytics", "Chatbot")" class="btn-hist-secondary">
+                    <i class="bi bi-bar-chart"></i> Analytics
+                </a>
+                <a href="@Url.Action("Index", "Chatbot")" class="btn-hist-primary">
+                    <i class="bi bi-chat-dots"></i> Chatbot
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Table -->
+    <div class="history-card">
+        @if (!Model.Messages.Any())
+        {
+            <div class="history-empty">
+                <i class="bi bi-inbox"></i>
+                <p>Aucune conversation enregistrée pour l'instant.</p>
+                <a href="@Url.Action("Index", "Chatbot")" class="btn-hist-primary">
+                    Démarrer une conversation
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="history-table-wrap">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date & heure</th>
+                            <th>Session</th>
+                            <th>Utilisateur</th>
+                            <th>Message</th>
+                            <th>Intention</th>
+                            <th>Produit associé</th>
+                            <th>Réponse du bot</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var msg in Model.Messages)
+                        {
+                            <tr>
+                                <td class="id-cell">@msg.Id</td>
+                                <td class="date-cell" style="white-space:nowrap">
+                                    <span class="time-badge">@msg.CreatedAt.ToString("HH:mm:ss")</span>
+                                    <span class="date-sub">@msg.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </td>
+                                <td>
+                                    <span class="session-chip" title="@msg.SessionId">
+                                        @(msg.SessionId?.Length >= 8 ? msg.SessionId.Substring(0, 8) : msg.SessionId ?? "—")
+                                    </span>
+                                </td>
+                                <td class="user-cell">@(msg.UserName ?? "Anonyme")</td>
+                                <td class="msg-cell user-q">@msg.UserMessage</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(msg.DetectedIntent))
+                                    {
+                                        <span class="intent-tag">@msg.DetectedIntent</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="na-tag">—</span>
+                                    }
+                                </td>
+                                <td class="product-cell">
+                                    @if (!string.IsNullOrEmpty(msg.MatchedProductName))
+                                    {
+                                        <div class="matched-product">
+                                            @if (!string.IsNullOrEmpty(msg.MatchedProductImage))
+                                            {
+                                                <img src="~/images/@msg.MatchedProductImage"
+                                                     alt="@msg.MatchedProductName"
+                                                     class="matched-thumb"
+                                                     onerror="this.style.display='none'" />
+                                            }
+                                            <span>@msg.MatchedProductName</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="na-tag">—</span>
+                                    }
+                                </td>
+                                <td class="msg-cell bot-r">
+                                    @{
+                                        string botText = msg.BotResponse;
+                                        if (botText.Length > 140)
+                                        {
+                                            botText = botText.Substring(0, 140) + "…";
+                                        }
+                                    }
+                                    @botText
+                                </td>
+                                <td class="img-cell">
+                                    @if (!string.IsNullOrEmpty(msg.AttachedImageUrl))
+                                    {
+                                        <a href="@msg.AttachedImageUrl" target="_blank">
+                                            <img src="@msg.AttachedImageUrl"
+                                                 alt="image"
+                                                 class="chat-thumb"
+                                                 onerror="this.style.display='none'" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="na-tag">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="history-pagination">
+                    @if (Model.Page > 1)
+                    {
+                        <a href="@Url.Action("History", "Chatbot", new { page = Model.Page - 1 })"
+                           class="page-btn">
+                            <i class="bi bi-chevron-left"></i> Précédent
+                        </a>
+                    }
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <a href="@Url.Action("History", "Chatbot", new { page = p })"
+                           class="page-btn @(p == Model.Page ? "active" : "")">@p</a>
+                    }
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <a href="@Url.Action("History", "Chatbot", new { page = Model.Page + 1 })"
+                           class="page-btn">
+                            Suivant <i class="bi bi-chevron-right"></i>
+                        </a>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .history-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        padding: 2rem 1.5rem 3rem;
+    }
+
+    /* Header */
+    .history-header {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .history-header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .history-title-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .history-icon-wrap {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #fff;
+        box-shadow: 0 4px 18px rgba(56,189,248,0.35);
+    }
+
+    .history-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+        background: linear-gradient(90deg, #38bdf8, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .history-subtitle {
+        color: rgba(255,255,255,0.5);
+        margin: 0;
+        font-size: 0.88rem;
+    }
+
+    .history-header-actions { display: flex; gap: 0.75rem; }
+
+    .btn-hist-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: linear-gradient(135deg, #7c3aed, #a855f7);
+        color: #fff;
+        padding: 0.5rem 1.1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: all .2s;
+    }
+
+    .btn-hist-primary:hover { transform: translateY(-2px); color: #fff; }
+
+    .btn-hist-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.8);
+        padding: 0.5rem 1.1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        border: 1px solid rgba(255,255,255,0.15);
+        transition: all .2s;
+    }
+
+    .btn-hist-secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    /* Card */
+    .history-card {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    /* Table */
+    .history-table-wrap { overflow-x: auto; }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.83rem;
+    }
+
+    .history-table thead th {
+        padding: 0.75rem 0.9rem;
+        background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.5);
+        font-weight: 500;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        letter-spacing: .5px;
+        white-space: nowrap;
+    }
+
+    .history-table tbody tr {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        transition: background .15s;
+    }
+
+    .history-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+
+    .history-table td { padding: 0.6rem 0.9rem; vertical-align: middle; }
+
+    .id-cell { color: rgba(255,255,255,0.3); font-family: monospace; }
+
+    .time-badge {
+        display: block;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #a78bfa;
+    }
+
+    .date-sub { font-size: 0.72rem; color: rgba(255,255,255,0.35); }
+
+    .session-chip {
+        background: rgba(167,139,250,0.12);
+        color: #c4b5fd;
+        padding: 0.2rem 0.55rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-family: monospace;
+        cursor: default;
+    }
+
+    .user-cell { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+    .msg-cell { max-width: 220px; color: rgba(255,255,255,0.8); }
+    .user-q { color: #93c5fd; }
+    .bot-r { color: rgba(255,255,255,0.55); }
+
+    .intent-tag {
+        background: rgba(56,189,248,0.12);
+        color: #38bdf8;
+        padding: 0.2rem 0.55rem;
+        border-radius: 6px;
+        font-size: 0.76rem;
+        white-space: nowrap;
+    }
+
+    .na-tag { color: rgba(255,255,255,0.2); font-size: 0.85rem; }
+
+    .matched-product {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .matched-thumb {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .chat-thumb {
+        width: 36px; height: 36px;
+        border-radius: 8px;
+        object-fit: cover;
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    /* Pagination */
+    .history-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1.25rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        flex-wrap: wrap;
+    }
+
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.07);
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        font-size: 0.85rem;
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: all .15s;
+    }
+
+    .page-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .page-btn.active { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; border-color: transparent; }
+
+    /* Empty State */
+    .history-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255,255,255,0.35);
+    }
+
+    .history-empty i { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .history-empty p { margin-bottom: 1.5rem; font-size: 0.95rem; }
+</style>

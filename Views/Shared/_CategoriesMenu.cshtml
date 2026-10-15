@@ -1,0 +1,40 @@
+@model IEnumerable<ProductManagement.Models.Category>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between py-3">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-folder-fill"></i>
+            <h6 class="mb-0 fw-bold">Catégories</h6>
+        </div>
+        <span class="badge bg-white text-primary">@(Model?.Count() ?? 0)</span>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <a class="text-decoration-none text-dark fw-semibold d-flex align-items-center justify-content-between"
+               asp-controller="Product" asp-action="Index">
+                <span><i class="bi bi-grid me-2 text-primary"></i> Tous les produits</span>
+                <i class="bi bi-chevron-right text-muted small"></i>
+            </a>
+        </li>
+        @if (Model == null || !Model.Any())
+        {
+            <li class="list-group-item text-muted small text-center py-3">
+                <i class="bi bi-info-circle me-1"></i> Aucune catégorie
+            </li>
+        }
+        else
+        {
+            @foreach (var categorie in Model)
+            {
+                <li class="list-group-item">
+                    <a class="text-decoration-none text-dark fw-semibold d-flex align-items-center justify-content-between"
+                       asp-controller="Product" asp-action="Index"
+                       asp-route-categoryId="@categorie.CategoryId">
+                        <span><i class="bi bi-tag-fill me-2 text-secondary"></i> @categorie.CategoryName</span>
+                        <i class="bi bi-chevron-right text-muted small"></i>
+                    </a>
+                </li>
+            }
+        }
+    </ul>
+</div>

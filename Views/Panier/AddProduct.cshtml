@@ -1,0 +1,133 @@
+@{
+    ViewBag.Title = "Produit Ajouté au Panier";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h2 mb-1">🛒 Mon Panier</h1>
+        <p class="text-muted mb-0">Article ajouté avec succès à votre commande</p>
+    </div>
+    <a href="~/Product/Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Continuer mes achats
+    </a>
+</div>
+
+<div>
+@if (ViewBag.Liste != null && ViewBag.Liste.Count > 0)
+{
+    <div class="row g-4">
+        <!-- Liste des articles -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Articles dans le panier</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Détails</th>
+                                    <th class="text-center">Quantité</th>
+                                    <th class="text-end">Sous-total</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ViewBag.Liste)
+                                {
+                                    <tr id="row-@item.Prod.ProductId">
+                                        <td style="width: 100px;">
+                                            <img src="~/images/@(item.Prod.Image ?? "noimage.jpg")"
+                                                 class="rounded-3 shadow-sm"
+                                                 style="width: 80px; height: 80px; object-fit: contain; background: #f8fafc;"
+                                                 alt="@item.Prod.Name">
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-1 fw-bold text-dark">@item.Prod.Name</h6>
+                                            <span class="badge bg-light text-secondary border">@(item.Prod.Category?.CategoryName ?? "Non classé")</span>
+                                            <div class="small text-muted mt-1">Prix unitaire : @item.UnitPrice DT</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-inline-flex align-items-center gap-1 border rounded-pill px-2 py-1 bg-light">
+                                                <a href="#" class="MinProducts text-decoration-none text-dark px-1" data-id="@item.Prod.ProductId" title="Diminuer">
+                                                    <i class="bi bi-dash-circle-fill text-secondary fs-5"></i>
+                                                </a>
+                                                <span class="fw-bold px-2" id="quantite_@item.Prod.ProductId">@item.quantite</span>
+                                                <a href="#" class="PlusProducts text-decoration-none text-dark px-1" data-id="@item.Prod.ProductId" title="Augmenter">
+                                                    <i class="bi bi-plus-circle-fill text-primary fs-5"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold fs-6 text-primary" id="total_@item.Prod.ProductId">@item.TotalPrice</span> <span class="fw-bold text-primary">DT</span>
+                                            <span style="display:none;" id="rquantite_@item.Prod.ProductId">@item.quantite</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="#" class="RemoveLink text-danger" data-id="@item.Prod.ProductId" title="Supprimer">
+                                                <i class="bi bi-trash3-fill fs-5"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Récapitulatif de Commande -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 90px;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Récapitulatif</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Sous-total :</span>
+                        <span class="fw-semibold">@ViewBag.total DT</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Livraison :</span>
+                        <span class="text-success fw-semibold">Gratuite</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fs-5 fw-bold text-dark">Total à payer :</span>
+                        <span class="fs-4 fw-extrabold text-primary"><span id="totalapayer">@ViewBag.total</span> DT</span>
+                    </div>
+
+                    @if (ViewBag.total > 0)
+                    {
+                        <a href="~/Panier/Checkout" class="btn btn-success btn-lg w-100 shadow">
+                            Commander maintenant <i class="bi bi-arrow-right"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm border-0 text-center py-5">
+        <div class="card-body">
+            <img src="~/images/panier_vide.png" alt="Panier vide" style="width: 160px; height: auto;" class="mb-3" />
+            <h3 class="fw-bold text-dark mb-2">Votre panier est vide !</h3>
+            <p class="text-muted mb-4">Découvrez nos articles et profitez de nos meilleures offres dès aujourd'hui.</p>
+            <a href="~/Product/Index" class="btn btn-primary btn-lg shadow">
+                <i class="bi bi-grid-fill me-1"></i> Explorer les produits
+            </a>
+        </div>
+    </div>
+}
+</div>
+
+<!-- Suggestions IA & Recommandations -->
+@await Html.PartialAsync("_RecommendedProductsPartial", (IEnumerable<ProductManagement.Models.Product>)ViewBag.RecommendedProducts)
+
+@section Scripts {
+    <script src="~/js/Monscript.js" type="text/javascript"></script>
+}

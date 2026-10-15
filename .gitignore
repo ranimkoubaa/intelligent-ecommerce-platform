@@ -1,0 +1,42 @@
+## Visual Studio & .NET .gitignore
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.dbmdl
+*.jfm
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# Environment and secrets
+appsettings.*.local.json
+secrets.json
+
+# Node & Frontend dependencies if any
+node_modules/
+npm-debug.log
+
+# Publish output
+publish/
+*.azurePubxml
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
